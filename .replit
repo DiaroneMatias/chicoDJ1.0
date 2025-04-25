@@ -1,0 +1,49 @@
+modules = ["nodejs-20", "python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["ffmpeg", "libsodium"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "discord_bot_setup"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "DiscordBot"
+
+[[workflows.workflow]]
+name = "discord_bot_setup"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install discord.py python-dotenv wavelink yt-dlp && echo \"Dependencies installed successfully!\""
+
+[[workflows.workflow]]
+name = "DiscordBot"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd chicobot && python bot.py"
+
+[[workflows.workflow]]
+name = "Run"
+author = 41325748
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python bot.py"
+
+[deployment]
+run = ["sh", "-c", "cd chicobot && python bot.py"]

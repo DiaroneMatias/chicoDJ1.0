@@ -1,0 +1,35 @@
+FFmpeg encontrado: /nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg
+Diretório de downloads criado.
+2025-04-25 19:45:17 INFO     discord.client logging in using static token
+2025-04-25 19:45:18 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: a262180c3675f76673d9b4a0ee798bf6).
+Bot está online como Féla da Gáita
+Bot está pronto para uso! Use !play playlist para começar a ouvir música.
+Buscando arquivos disponíveis para fallback...
+Nenhum arquivo de fallback encontrado!
+[youtube:search] Extracting URL: ytsearch:a banda Chico Buarque
+[download] Downloading playlist: a banda Chico Buarque
+[youtube:search] query "a banda Chico Buarque": Downloading web client config
+[youtube:search] query "a banda Chico Buarque" page 1: Downloading API JSON
+[youtube:search] Playlist a banda Chico Buarque: Downloading 1 items of 1
+[download] Downloading item 1 of 1
+[youtube] Extracting URL: https://www.youtube.com/watch?v=WZWcpEgJZAY
+[youtube] WZWcpEgJZAY: Downloading webpage
+[youtube] WZWcpEgJZAY: Downloading tv client config
+[youtube] WZWcpEgJZAY: Downloading player 22f02d3d-main
+[youtube] WZWcpEgJZAY: Downloading tv player API JSON
+[youtube] WZWcpEgJZAY: Downloading ios player API JSON
+[youtube] WZWcpEgJZAY: Downloading m3u8 information
+[info] WZWcpEgJZAY: Downloading 1 format(s): 251
+[download] Destination: downloads/WZWcpEgJZAY.webm
+[download] 100% of    2.05MiB in 00:00:00 at 10.29MiB/s
+[ExtractAudio] Destination: downloads/WZWcpEgJZAY.mp3
+Deleting original file downloads/WZWcpEgJZAY.webm (pass -k to keep)
+[download] Finished downloading playlist: a banda Chico Buarque
+Adicionado à fila: Chico Buarque - A Banda - Ilustrado (downloads/WZWcpEgJZAY.mp3)
+2025-04-25 19:47:12 INFO     discord.voice_state Connecting to voice...
+2025-04-25 19:47:12 INFO     discord.voice_state Starting voice handshake... (connection attempt 1)
+2025-04-25 19:47:12 INFO     discord.voice_state Voice handshake complete. Endpoint found: brazil11122.discord.media
+2025-04-25 19:47:13 INFO     discord.voice_state Voice connection complete.
+Erro geral no comando play: 
+2025-04-25 19:47:13 INFO     discord.player ffmpeg process 799 has not terminated. Waiting to terminate...
+2025-04-25 19:47:13 INFO     discord.player ffmpeg process 799 should have terminated with a return code of -9.
