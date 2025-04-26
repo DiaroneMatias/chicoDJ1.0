@@ -1,3 +1,11 @@
+import subprocess
+
+try:
+    result = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
+    print("FFmpeg detectado:\n", result.stdout)
+except FileNotFoundError:
+    print("FFmpeg **NÃO** encontrado.")
+
 import discord
 from discord.ext import commands
 from discord.ui import Button, View
