@@ -1,2 +1,6 @@
 discord.py
 youtube-dl
+yt-dlp
+discord.py>=2.0.0
+python-dotenv
+PyNaCl
