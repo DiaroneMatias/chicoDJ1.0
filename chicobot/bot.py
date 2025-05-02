@@ -256,15 +256,24 @@ async def play(ctx, *, arg=None):
         # Configuração do youtube-dl para formato PCM (mais compatível com discord.py)
         ydl_opts = {
             'format': 'bestaudio/best',
-            'extract_audio': True,
-            'audio_format': 'wav',  # Tentar formato não comprimido mais simples
-            'outtmpl': 'downloads/%(id)s.%(ext)s',
+            'outtmpl': 'downloads/%(title)s.%(ext)s',
+            'restrictfilenames': True,
             'noplaylist': True,
-            'quiet': False,
+            'quiet': True,
+            'no_warnings': True,
             'default_search': 'ytsearch',
             'socket_timeout': 30,
             'nocheckcertificate': True,
-            # Sem pós-processamento complexo
+            'ignoreerrors': True,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            # Configurações para evitar bloqueios
+            'cookiefile': 'cookies.txt',  # Opcional: se tiver cookies
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'referer': 'https://www.youtube.com/',
         }
 
         # Tentar encontrar arquivos válidos disponíveis na pasta downloads para usar como fallbacks
