@@ -1,4 +1,4 @@
-'''import subprocess
+import subprocess
 
 try:
     result = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
