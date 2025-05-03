@@ -128,14 +128,21 @@ async def play_next(ctx):
     current_index += 1
 
     try:
-        voice_client.play(discord.FFmpegPCMAudio(file_path, executable=ffmpeg_path, **FFMPEG_OPTIONS),
-        after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), bot.loop)
+        voice_client.play(
+            discord.FFmpegPCMAudio(
+                file_path,
+                executable=ffmpeg_path,
+                **FFMPEG_OPTIONS
+            ),
+            after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), bot.loop)
+        )
         
         await ctx.send(f"🎶 Tocando: **{title}**", view=build_view(ctx))
     except Exception as e:
         print(f"Erro na reprodução: {str(e)}")
         await ctx.send(f"⚠️ Erro ao reproduzir {title}")
         await play_next(ctx)
+        
 
 async def stop_player(ctx):
     global voice_client, music_queue, current_index, is_paused
