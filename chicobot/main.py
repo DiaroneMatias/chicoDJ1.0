@@ -142,8 +142,8 @@ async def play_next(ctx):
         print(f"Erro na reprodução: {str(e)}")
         await ctx.send(f"⚠️ Erro ao reproduzir {title}")
         await play_next(ctx)
-        
 
+   
 async def stop_player(ctx):
     global voice_client, music_queue, current_index, is_paused
     music_queue = []
