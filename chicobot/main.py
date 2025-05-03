@@ -31,6 +31,10 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Configurações Globais
 TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN:
+    print("Erro: Token do bot não configurado. Verifique o arquivo .env.")
+    sys.exit(1)
+
 FFMPEG_OPTIONS = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
     'options': '-vn -sn'
@@ -68,53 +72,55 @@ current_index = 0
 voice_client = None
 is_paused = False
 
+
+# Funções dos botões
+async def button_previous(interaction, ctx):
+    global current_index, voice_client
+    current_index = max(0, current_index - 2)
+    voice_client.stop()
+    await interaction.response.send_message("⏮️ Voltando para música anterior...")
+
+async def button_pause(interaction):
+    global voice_client, is_paused
+    if voice_client.is_playing():
+        voice_client.pause()
+        is_paused = True
+        await interaction.response.send_message("⏸️ Música pausada!")
+
+async def button_resume(interaction):
+    global voice_client, is_paused
+    if is_paused:
+        voice_client.resume()
+        is_paused = False
+        await interaction.response.send_message("▶️ Música retomada!")
+
+async def button_skip(interaction):
+    global voice_client
+    voice_client.stop()
+    await interaction.response.send_message("⏭️ Pulando música...")
+
+async def button_stop(interaction, ctx):
+    await stop_player(ctx)
+    await interaction.response.send_message("⏹️ Reprodução interrompida!")
+
+
 # View de Controles
 def build_view(ctx):
     view = View(timeout=None)
 
-    async def control_interaction(interaction):
-        if interaction.user != ctx.author:
-            await interaction.response.send_message("⚠️ Apenas quem iniciou a reprodução pode controlar!", ephemeral=True)
-            return
-        await interaction.response.defer()
-
-    # Botões
     buttons = [
-        ('⏮️ Anterior', discord.ButtonStyle.secondary, 'previous'),
-        ('⏸️ Pausar', discord.ButtonStyle.danger, 'pause'),
-        ('▶️ Retomar', discord.ButtonStyle.success, 'resume'),
-        ('⏭️ Próxima', discord.ButtonStyle.primary, 'skip'),
-        ('⏹️ Parar', discord.ButtonStyle.danger, 'stop')
+        Button(label='⏮️ Anterior', style=discord.ButtonStyle.secondary, callback=lambda i: button_previous(i, ctx)),
+        Button(label='⏸️ Pausar', style=discord.ButtonStyle.danger, callback=button_pause),
+        Button(label='▶️ Retomar', style=discord.ButtonStyle.success, callback=button_resume),
+        Button(label='⏭️ Próxima', style=discord.ButtonStyle.primary, callback=button_skip),
+        Button(label='⏹️ Parar', style=discord.ButtonStyle.danger, callback=lambda i: button_stop(i, ctx))
     ]
 
-    for label, style, action in buttons:
-        button = Button(label=label, style=style)
-        button.callback = lambda i, a=action: handle_controls(i, a, ctx)
+    for button in buttons:
         view.add_item(button)
 
     return view
 
-async def handle_controls(interaction, action, ctx):
-    global voice_client, is_paused, current_index
-    
-    if action == 'pause' and voice_client.is_playing():
-        voice_client.pause()
-        is_paused = True
-        await interaction.followup.send("⏸️ Música pausada!")
-    elif action == 'resume' and is_paused:
-        voice_client.resume()
-        is_paused = False
-        await interaction.followup.send("▶️ Música retomada!")
-    elif action == 'skip':
-        voice_client.stop()
-        await interaction.followup.send("⏭️ Pulando música...")
-    elif action == 'previous':
-        current_index = max(0, current_index - 2)
-        voice_client.stop()
-        await interaction.followup.send("⏮️ Voltando para música anterior...")
-    elif action == 'stop':
-        await stop_player(ctx)
-        await interaction.followup.send("⏹️ Reprodução interrompida!")
 
 # Funções do Player
 async def play_next(ctx):
@@ -155,10 +161,13 @@ async def stop_player(ctx):
         voice_client = None
     
     for file in os.listdir('downloads'):
-        try:
-            os.remove(os.path.join('downloads', file))
-        except Exception as e:
-            print(f"Erro ao limpar arquivos: {str(e)}")
+        file_path = os.path.join('downloads', file)
+        if os.path.isfile(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Erro ao limpar arquivos: {str(e)}")
+
 
 # Comandos do Bot
 @bot.command()
@@ -170,14 +179,15 @@ async def play(ctx, *, query=None):
         return
 
     try:
-        # Conectar ao canal de voz
         if not ctx.author.voice:
             await ctx.send("⚠️ Você precisa estar em um canal de voz!")
             return
-            
-        voice_client = await ctx.author.voice.channel.connect()
 
-        # Configurar busca
+        if voice_client and voice_client.is_connected():
+            await voice_client.move_to(ctx.author.voice.channel)
+        else:
+            voice_client = await ctx.author.voice.channel.connect()
+
         if query.lower() == "playlist":
             search_queries = [
                 "Os Saltimbancos - Bicharia",
@@ -191,7 +201,6 @@ async def play(ctx, *, query=None):
             search_queries = [query]
             await ctx.send(f"🔍 Procurando: {query}...")
 
-        # Processar buscas
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             for search in search_queries:
                 try:
@@ -213,13 +222,15 @@ async def play(ctx, *, query=None):
             await ctx.send("⚠️ Nenhuma música encontrada!")
 
     except Exception as e:
-        print(f"Erro geral: {str(e)}")
-        await ctx.send(f"⚠️ Erro crítico: {str(e)}")
+        print(f"Erro geral: {str(e)}", file=sys.stderr)
+        await ctx.send(f"⚠️ Ocorreu um erro inesperado: {str(e)}")
+
 
 @bot.command()
 async def stop(ctx):
     await stop_player(ctx)
     await ctx.send("⏹️ Player totalmente reiniciado!")
+
 
 @bot.command()
 async def skip(ctx):
@@ -228,21 +239,26 @@ async def skip(ctx):
         voice_client.stop()
         await ctx.send("⏭️ Pulando para próxima música...")
 
+
 @bot.command()
 async def letra(ctx, musica):
-    # ... (mantenha o mesmo código de letras) ...
+    pass  # Código omitido
+
 
 @bot.command()
 async def chico(ctx):
-    # ... (mantenha o mesmo código de informações) ...
+    pass  # Código omitido
+
 
 @bot.command()
 async def discografia(ctx):
-    # ... (mantenha o mesmo código de discografia) ...
+    pass  # Código omitido
+
 
 @bot.event
 async def on_ready():
     print(f"Bot conectado como {bot.user.name}")
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="!ajuda"))
+
 
 bot.run(TOKEN)
