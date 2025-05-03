@@ -176,6 +176,22 @@ async def play(ctx, *, query=None):
             await ctx.send("⚠️ Você precisa estar em um canal de voz!")
             return
 
+    except Exception as e:
+        if "cookies" in str(e).lower():
+            error_msg = """🔒 **Erro de Autenticação:**
+             O YouTube está bloqueando requisições automáticas!
+            Por favor, peça ao administrador para:
+            1. Atualizar o arquivo cookies.txt
+            2. Verificar as permissões
+            """
+            await ctx.send(error_msg)
+        else:
+            await ctx.send(f"❌ Erro desconhecido: `{type(e).__name__}`")
+    
+        print(f"ERRO CRÍTICO: {traceback.format_exc()}")
+
+
+    
         # Conexão/redirecionamento do bot
         channel = ctx.author.voice.channel
         if voice_client:
